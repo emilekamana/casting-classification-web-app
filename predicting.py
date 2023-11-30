@@ -2,7 +2,9 @@
 import streamlit as st
 from PIL import Image
 import numpy as np
+import tensorflow.keras as keras
 from keras.models import load_model
+
 
 # Function for image preprocessing
 # Define the image size for preprocessing
@@ -56,7 +58,7 @@ def main():
                 prediction = predict_defect(processed_image, model)
 
                 # Display prediction result
-                st.success("Prediction Probability:", prediction)
+                st.success("Prediction: " + prediction)
 
             except:
                 # If the file is not an image, show an error message
