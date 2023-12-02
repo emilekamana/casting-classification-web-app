@@ -12,12 +12,7 @@ import joblib
 # Function for image preprocessing
 # Define the image size for preprocessing
 img_size = (300, 300)
-
-relevance_model = keras.models.load_model("relevance_checking_model.keras")
-
-scaler = joblib.load("scaler.save") 
-
-train_features_std = np.load('train_features_std.npy')
+print('running')
 
 def extract_features(image_path):
     image =tf.keras.preprocessing.image.load_img(image_path, target_size=img_size)
@@ -26,6 +21,9 @@ def extract_features(image_path):
     img_array = np.expand_dims(img_array, axis=0)
     # Preprocess the images for ResNet50
     preprocessed_images = preprocess_input(img_array)
+    
+    relevance_model = load_model("relevance_checking_model.keras")
+    print('uploaded model')
 
     # Extract features using ResNet50
     features = relevance_model.predict(preprocessed_images)
@@ -35,9 +33,16 @@ def extract_features(image_path):
 # Function to check if an image is relevant based on clustering
 def is_relevant_by_cosine_similarity(image_path):
     test_features=extract_features(image_path)
+    
+    scaler = joblib.load("scaler.save") 
+    print('uploaded scaler')
 
     # Standardize features
     image_features_std = scaler.transform(test_features)
+
+    
+    train_features_std = np.load('train_features_std.npy')
+    print('uploaded features')
 
     similarities = cosine_similarity(image_features_std, train_features_std)
     max_similarity = np.max(similarities)
@@ -90,24 +95,24 @@ def main():
         if uploaded_file is not None:
             try:
 
-                    if is_relevant_by_cosine_similarity(uploaded_file):
-                    # Add a button to check the uploaded file
-                        # Display the uploaded image
-                        st.image(uploaded_file, caption="Uploaded Image.", use_column_width=True)
+                if is_relevant_by_cosine_similarity(uploaded_file):
+                # Add a button to check the uploaded file
+                    # Display the uploaded image
+                    st.image(uploaded_file, caption="Uploaded Image.", use_column_width=True)
 
-                        # Preprocess the image
-                        processed_image = preprocess_image(uploaded_file)
+                    # Preprocess the image
+                    processed_image = preprocess_image(uploaded_file)
 
-                        # Load the saved model
-                        model = load_model("best_fine_tuned_model.h5")
+                    # Load the saved model
+                    model = load_model("best_fine_tuned_model.h5")
 
-                        # Make predictions
-                        prediction = predict_defect(processed_image, model)
+                    # Make predictions
+                    prediction = predict_defect(processed_image, model)
 
-                        # Display prediction result
-                        st.success("Prediction: " + prediction)
-                    else:
-                        st.error("The file you uploaded is not relevant. Please upload a valid image file.")
+                    # Display prediction result
+                    st.success("Prediction: " + prediction)
+                else:
+                    st.error("The file you uploaded is not relevant. Please upload a valid image file.")
 
             except:
                 # If the file is not an image, show an error message
@@ -118,5 +123,4 @@ def main():
 
 
 if __name__ == '__main__':
-    print('running')
     main()
