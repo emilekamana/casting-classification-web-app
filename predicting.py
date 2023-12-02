@@ -22,11 +22,11 @@ def extract_features(image_path):
     # Preprocess the images for ResNet50
     preprocessed_images = preprocess_input(img_array)
     
-    relevance_model = load_model("relevance_checking_model.keras")
+    relevance_model = load_model("utils/relevance_checking_model.h5")
     print('uploaded model')
 
     # Extract features using ResNet50
-    features = relevance_model.predict(preprocessed_images)
+    features = relevance_model.predict(tf.constant(preprocessed_images))
 
     return features
 
@@ -34,14 +34,14 @@ def extract_features(image_path):
 def is_relevant_by_cosine_similarity(image_path):
     test_features=extract_features(image_path)
     
-    scaler = joblib.load("scaler.save") 
+    scaler = joblib.load("utils/scaler.save") 
     print('uploaded scaler')
 
     # Standardize features
     image_features_std = scaler.transform(test_features)
 
     
-    train_features_std = np.load('train_features_std.npy')
+    train_features_std = np.load('utils/train_features.npy')
     print('uploaded features')
 
     similarities = cosine_similarity(image_features_std, train_features_std)
@@ -93,7 +93,7 @@ def main():
     if st.button("Predict"):
         # Check if the uploaded file is an image
         if uploaded_file is not None:
-            try:
+            # try:
 
                 if is_relevant_by_cosine_similarity(uploaded_file):
                 # Add a button to check the uploaded file
@@ -114,9 +114,9 @@ def main():
                 else:
                     st.error("The file you uploaded is not relevant. Please upload a valid image file.")
 
-            except:
-                # If the file is not an image, show an error message
-                st.error("Something went wrong. Please try uploading another image file.")
+            # except:
+            #     # If the file is not an image, show an error message
+            #     st.error("Something went wrong. Please try uploading another image file.")
         else:
             # If no file is uploaded, show a warning message
             st.warning("Please upload an image file to make a prediction.")

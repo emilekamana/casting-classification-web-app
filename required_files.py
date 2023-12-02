@@ -4,7 +4,8 @@ from keras.applications import ResNet50,ResNet152V2
 import joblib
 import numpy as np
 
-model = ResNet152V2(weights='imagenet', include_top=False, pooling='avg')
+# model = ResNet152V2(weights='imagenet', include_top=False, pooling='avg')
+relevance_model = load_model("relevance_checking_model.keras")
 
 model.save("relevance_checking_model.h5")
 
